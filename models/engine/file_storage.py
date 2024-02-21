@@ -57,10 +57,10 @@ class FileStorage:
 
     def delete(self, obj=None):
         """Deletes an object from list of instances"""
-        if obj is not None:
-            delIns = f"{obj.__class__.__name__}.{obj.id}"
-            del FileStorage.__objects[delIns]
-            self.save()
+        if obj:
+            # format key from obj
+            key = "{}.{}".format(type(obj).__name__, obj.id)
+            del self.__objects[key]
 
     @property
     def cities(self):
