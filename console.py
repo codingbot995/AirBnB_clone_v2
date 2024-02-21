@@ -2,6 +2,8 @@
 """ Console Module """
 import cmd
 import sys
+import models
+import importlib
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -113,9 +115,8 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create an object of any class"""
-              """
+    def do_create(self, arg):
+        """ Create an object of any class
         Create an object with given params
         Syntax: create <Class> <param 1> <param 2> <param 3>
         param syntax: <key_name>=<value>
