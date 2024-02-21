@@ -115,16 +115,54 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        if not args:
-            print("** class name missing **")
+              """
+        Create an object with given params
+        Syntax: create <Class> <param 1> <param 2> <param 3>
+        param syntax: <key_name>=<value>
+        Value syntax: "<value>":=<value>
+        """
+        args = arg.split()
+        if len(args) < 2:
+            print("Usage: create <Class name> <param 1> ..")
             return
-        elif args not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+        class_nm = args[0]
+        if not class_nm:
+            print("* class name missing *")
+
+        if class_nm not in HBNBCommand.classes:
+            print("* class doesn't exist *")
+
+        try:
+            module = importlib.import_module(f"models.{class_nm.lower()}")
+            class_ = getattr(module, class_nm)
+
+            # Prase parameters and create obj
+            kwargs = {}
+            for i in args[1:]:
+                if '=' in i:
+                    key, val = i.split('=', 1)
+                    if val.startswith("\"") and val.endswith("\""):
+                        # String value
+                        val = val[1:-1].replace('_', ' ').replace('\"', '"')
+                    elif '.' in val:
+                        try:
+                            val = float(val)
+                        except ValueError:
+                            continue
+                    else:
+                        # Integer Value
+                        try:
+                            val = int(val)
+                        except ValueError:
+                            continue
+                    kwargs[key] = val
+            # Create objects with given parameters
+            obj = class_(**kwargs)
+            storage.new(obj)
+            storage.save()
+            print(obj.id)
+        except (ImportError, AttributeError) as e:
+            print(f"Error: {e}")
 
     def help_create(self):
         """ Help information for the create method """
@@ -208,10 +246,10 @@ class HBNBCommand(cmd.Cmd):
                 return
             for k, v in storage._FileStorage__objects.items():
                 if k.split('.')[0] == args:
-                    print_list.append(str(v))
+                    print_list.append(v)
         else:
             for k, v in storage._FileStorage__objects.items():
-                print_list.append(str(v))
+                print_list.append(v)
 
         print(print_list)
 
